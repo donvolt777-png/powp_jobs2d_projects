@@ -54,7 +54,7 @@ public class TestJobs2dApp {
 
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
         
-        application.addTest("Display Command Counter", new SelectDisplayCommandCounterOptionListener(CommandsFeature.getDriverCommandManager()));
+        //application.addTest("Display Command Counter", new SelectDisplayCommandCounterOptionListener(CommandsFeature.getDriverCommandManager()));
 
     }
 

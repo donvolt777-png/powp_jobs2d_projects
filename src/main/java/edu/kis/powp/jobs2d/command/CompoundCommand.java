@@ -61,7 +61,7 @@ public class CompoundCommand implements ICompoundCommand {
         for (DriverCommand command : commands) {
             copied.add(command.copy());
         }
-        return new CompoundCommand(copied);
+        return new CompoundCommand(copied, this.name);
     }
 
     /**
