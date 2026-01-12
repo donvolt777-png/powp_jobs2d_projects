@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.kis.powp.jobs2d.command.CompoundCommand;
 import edu.kis.powp.jobs2d.command.DriverCommand;
+import edu.kis.powp.jobs2d.command.visitor.CommandCounterVisitor;
 import edu.kis.powp.observer.Publisher;
 
 /**
@@ -12,7 +13,7 @@ import edu.kis.powp.observer.Publisher;
 public class CommandManager {
     private DriverCommand currentCommand = null;
 
-    private Publisher changePublisher = new Publisher();
+    private final Publisher changePublisher = new Publisher();
 
     /**
      * Set current command.
@@ -51,8 +52,15 @@ public class CommandManager {
     public synchronized String getCurrentCommandString() {
         if (getCurrentCommand() == null) {
             return "No command loaded";
-        } else
-            return getCurrentCommand().toString();
+        } else {
+            StringBuilder sb = new StringBuilder(getCurrentCommand().toString());
+            sb.append("\n\nStats:\n");
+            sb.append("Total commands: ").append(CommandCounterVisitor.countAll(getCurrentCommand())).append("\n");
+            sb.append("OperateTo count: ").append(CommandCounterVisitor.countOperateTo(getCurrentCommand())).append("\n");
+            sb.append("SetPosition count: ").append(CommandCounterVisitor.countSetPosition(getCurrentCommand())).append("\n");
+            sb.append("Compound count: ").append(CommandCounterVisitor.countCompound(getCurrentCommand())).append("\n");
+            return sb.toString();
+        }
     }
 
     public Publisher getChangePublisher() {

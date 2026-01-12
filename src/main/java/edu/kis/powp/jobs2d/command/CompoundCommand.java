@@ -15,7 +15,7 @@ import edu.kis.powp.jobs2d.Job2dDriver;
 public class CompoundCommand implements ICompoundCommand {
 
     private final List<DriverCommand> commands;
-    private String name = "Compound Command";
+    private final String name;
 
     /**
      * Private constructor to ensure controlled creation of CompoundCommand instances.
@@ -45,6 +45,7 @@ public class CompoundCommand implements ICompoundCommand {
         }
     }
 
+
     /**
      * Returns an iterator over the commands in this compound command.
      * 
@@ -61,7 +62,7 @@ public class CompoundCommand implements ICompoundCommand {
         for (DriverCommand command : commands) {
             copied.add(command.copy());
         }
-        return new CompoundCommand(copied, this.name);
+        return new CompoundCommand(copied, this.name + " (copy)");
     }
 
     /**
