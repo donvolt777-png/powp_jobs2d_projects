@@ -11,15 +11,19 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.drivers.AnimatedDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.LoggerDriver;
 import edu.kis.powp.jobs2d.drivers.DriverComposite;
 import edu.kis.powp.jobs2d.drivers.UsageTrackingDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.visitor.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
 import edu.kis.powp.jobs2d.features.DriverFeature;
 import edu.kis.powp.jobs2d.features.MonitoringFeature;
+
+import edu.kis.powp.jobs2d.drivers.transformation.DriverFeatureFactory;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -36,10 +40,14 @@ public class TestJobs2dApp {
                 DriverFeature.getDriverManager());
         SelectTestCompoundCommandOptionListener selectTestCompoundCommandOptionListener = new SelectTestCompoundCommandOptionListener(
                 DriverFeature.getDriverManager());
+        SelectCountCommandOptionListener selectCountCommandOptionListener = new SelectCountCommandOptionListener(CommandsFeature.getDriverCommandManager());
+        SelectCountDriverOptionListener selectCountDriverOptionListener = new SelectCountDriverOptionListener();
 
         application.addTest("Figure Joe 1", selectTestFigureOptionListener);
         application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
         application.addTest("Figure House - CompoundCommand", selectTestCompoundCommandOptionListener);
+        application.addTest("Count commands - Visitor", selectCountCommandOptionListener);
+        application.addTest("Count drivers - Visitor", selectCountDriverOptionListener);
     }
 
     /**
@@ -50,32 +58,41 @@ public class TestJobs2dApp {
     private static void setupCommandTests(Application application) {
         application.getFreePanel().addMouseListener(new CanvasMouseListener());
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
-
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
-
     }
 
     /**
-     * Setup driver manager, and set default Job2dDriver for application.
+     * Setup driver manager, and set default VisitableJob2dDriver for application.
      * 
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
-        Job2dDriver loggerDriver = new LoggerDriver(logger);
+        VisitableJob2dDriver loggerDriver = new LoggerDriver(logger);
         DriverFeature.addDriver("Logger driver", loggerDriver);
 
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
-
-        Job2dDriver basicLineDriver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        VisitableJob2dDriver basicLineDriver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Basic line Simulator", basicLineDriver);
 
-        Job2dDriver specialLineDriver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
+        AnimatedDriverDecorator slowAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
+        slowAnimatedDriverDecorator.setSpeedSlow();
+        DriverFeature.addDriver("Animated Line - slow", slowAnimatedDriverDecorator);
+
+        AnimatedDriverDecorator mediumAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
+        mediumAnimatedDriverDecorator.setSpeedMedium();
+        DriverFeature.addDriver("Animated Line - medium speed", mediumAnimatedDriverDecorator);
+
+        AnimatedDriverDecorator fastAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
+        fastAnimatedDriverDecorator.setSpeedFast();
+        DriverFeature.addDriver("Animated Line - fast", fastAnimatedDriverDecorator);
+
+        VisitableJob2dDriver specialLineDriver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverFeature.addDriver("Special line Simulator", specialLineDriver);
 
-        Job2dDriver basicLineWithLoggerDriver = new DriverComposite(Arrays.asList(basicLineDriver, loggerDriver));
+        VisitableJob2dDriver basicLineWithLoggerDriver = new DriverComposite(Arrays.asList(basicLineDriver, loggerDriver));
         DriverFeature.addDriver("Logger + Basic line", basicLineWithLoggerDriver);
 
-        Job2dDriver specialLineWithLoggerDriver = new DriverComposite(Arrays.asList(specialLineDriver, loggerDriver));
+        VisitableJob2dDriver specialLineWithLoggerDriver = new DriverComposite(Arrays.asList(specialLineDriver, loggerDriver));
         DriverFeature.addDriver("Logger + Special line", specialLineWithLoggerDriver);
 
         // Add monitored versions of drivers
@@ -89,6 +106,14 @@ public class TestJobs2dApp {
 
         // Set default driver
         DriverFeature.getDriverManager().setCurrentDriver(basicLineDriver);
+        VisitableJob2dDriver rotatedDriver = DriverFeatureFactory.createRotateDriver(basicLineDriver, 45);
+        DriverFeature.addDriver("Basic Line + Rotate 45", rotatedDriver);
+
+        VisitableJob2dDriver scaledDriver = DriverFeatureFactory.createScaleDriver(basicLineDriver, 2.0);
+        DriverFeature.addDriver("Basic Line + Scale 2x", scaledDriver);
+
+        VisitableJob2dDriver flippedDriver = DriverFeatureFactory.createFlipDriver(basicLineDriver, true, false);
+        DriverFeature.addDriver("Basic Line + Flip Horizontal", flippedDriver);
 
         DriverFeature.updateDriverInfo();
     }
