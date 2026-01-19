@@ -1,15 +1,17 @@
 package edu.kis.powp.jobs2d.events;
 
-import edu.kis.powp.jobs2d.command.CompoundCommand;
-import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.OperateToCommand;
-import edu.kis.powp.jobs2d.command.SetPositionCommand;
-import edu.kis.powp.jobs2d.drivers.DriverManager;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.kis.powp.jobs2d.command.CompoundCommand;
+import edu.kis.powp.jobs2d.command.DriverCommand;
+import edu.kis.powp.jobs2d.command.OperateToCommand;
+import edu.kis.powp.jobs2d.command.SetPositionCommand;
+import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.jobs2d.drivers.DriverManager;
+import edu.kis.powp.jobs2d.features.CommandsFeature;
 
 public class SelectTestCompoundCommandOptionListener implements ActionListener {
 
@@ -44,8 +46,9 @@ public class SelectTestCompoundCommandOptionListener implements ActionListener {
         CompoundCommand house = CompoundCommand.builder()
                         .add(square) // adds other build (base)
                         .add(roofCommands) // adds new list of commands (roof)
+                        .setName("House Test Command")
                         .build(); // returns new immutable object (base+roof)
-
-        house.execute(driverManager.getCurrentDriver());
+        CommandManager commandManager = CommandsFeature.getDriverCommandManager();
+        commandManager.setCurrentCommand(house);
     }
 }

@@ -15,7 +15,7 @@ public class SelectLoadSecretCommandOptionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        List<DriverCommand> commands = new ArrayList<DriverCommand>();
+        List<DriverCommand> commands = new ArrayList<>();
         commands.add(new SetPositionCommand(-20, -50));
         commands.add(new OperateToCommand(-20, -50));
         commands.add(new SetPositionCommand(-20, -40));
