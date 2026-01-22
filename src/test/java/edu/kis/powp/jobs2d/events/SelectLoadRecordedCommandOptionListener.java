@@ -21,15 +21,22 @@ public class SelectLoadRecordedCommandOptionListener implements ActionListener {
 
     @Override
     public void actionPerformed(java.awt.event.ActionEvent e) {
+        // Save recording
         this.recordingDriver.stopRecording();
         this.commands = recordingDriver.getRecordedCommands();
 
+        // Store recorded commands locally (local temp)
         Iterator<DriverCommand> iterator = commands.iterator();
         List<DriverCommand> commandList = new ArrayList<>();
         while (iterator.hasNext()) {
             commandList.add(iterator.next());
         }
         
+        // Reset recording driver
+        this.recordingDriver.resetBuilder();
+        this.recordingDriver.clearRecording();
+        
+        // Set current commands in manager
         CommandManager manager = CommandsFeature.getDriverCommandManager();
         manager.setCurrentCommand(commandList, "RecordedCommand");
     }

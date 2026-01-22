@@ -26,6 +26,8 @@ public class RecordingDriverDecorator implements VisitableJob2dDriver {
         commandBuilder.addOperateTo(x, y);
     }
 
+    // Methods used in listener START
+
     public void stopRecording() {
         recordedCommands = commandBuilder.build();
     }
@@ -33,6 +35,16 @@ public class RecordingDriverDecorator implements VisitableJob2dDriver {
     public CompoundCommand getRecordedCommands() {
         return this.recordedCommands;
     }
+
+    public void resetBuilder() {
+        commandBuilder.clear();
+    }
+
+    public void clearRecording() {
+        this.recordedCommands = null;
+    }
+    
+    // Methods used in listener END
 
     @Override
     public String toString() {
