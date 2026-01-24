@@ -40,16 +40,14 @@ public class TestJobs2dApp {
                 DriverFeature.getDriverManager());
         SelectTestFigure2OptionListener selectTestFigure2OptionListener = new SelectTestFigure2OptionListener(
                 DriverFeature.getDriverManager());
-        SelectTestCompoundCommandOptionListener selectTestCompoundCommandOptionListener = new SelectTestCompoundCommandOptionListener(
-                DriverFeature.getDriverManager());
         SelectCountCommandOptionListener selectCountCommandOptionListener = new SelectCountCommandOptionListener(CommandsFeature.getDriverCommandManager());
         SelectCountDriverOptionListener selectCountDriverOptionListener = new SelectCountDriverOptionListener();
 
         application.addTest("Figure Joe 1", selectTestFigureOptionListener);
         application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
-        application.addTest("Figure House - CompoundCommand", selectTestCompoundCommandOptionListener);
         application.addTest("Count commands - Visitor", selectCountCommandOptionListener);
         application.addTest("Count drivers - Visitor", selectCountDriverOptionListener);
+
     }
 
     /**
@@ -58,8 +56,12 @@ public class TestJobs2dApp {
      * @param application Application context.
      */
     private static void setupCommandTests(Application application) {
+
         application.getFreePanel().addMouseListener(new CanvasMouseListener());
+
+        application.addTest("Load house command", new SelectTestCompoundCommandOptionListener());
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
+
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
     }
 
