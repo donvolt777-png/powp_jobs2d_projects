@@ -74,6 +74,9 @@ public class ViewFeature {
         
         // Add View menu
         app.addComponentMenu(ViewFeature.class, "View");
+        app.addComponentMenuElement(ViewFeature.class, "Zoom in", (e) -> zoomIn());
+        app.addComponentMenuElement(ViewFeature.class, "Zoom out", (e) -> zoomOut());
+        app.addComponentMenuElement(ViewFeature.class, "Reset", (e) -> resetView());
     }
 
     /**

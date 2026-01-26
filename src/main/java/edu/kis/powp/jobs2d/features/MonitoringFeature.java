@@ -3,6 +3,7 @@ package edu.kis.powp.jobs2d.features;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.kis.powp.appbase.Application;
@@ -49,6 +50,26 @@ public final class MonitoringFeature {
      */
     public static void registerMonitoredDriver(String label, UsageTrackingDriverDecorator driver) {
         monitoredDrivers.put(label, driver);
+    }
+
+    /**
+     * Setup menu for adjusting logging settings.
+     *
+     * @param application Application context.
+     */
+    public static void setupLoggerMenu(Application application) {
+
+        application.addComponentMenu(Logger.class, "Logger", 0);
+        application.addComponentMenuElement(Logger.class, "Clear log",
+            (ActionEvent e) -> application.flushLoggerOutput());
+        application.addComponentMenuElement(Logger.class, "Fine level", (ActionEvent e) -> logger.setLevel(
+            Level.FINE));
+        application.addComponentMenuElement(Logger.class, "Info level", (ActionEvent e) -> logger.setLevel(Level.INFO));
+        application.addComponentMenuElement(Logger.class, "Warning level",
+            (ActionEvent e) -> logger.setLevel(Level.WARNING));
+        application.addComponentMenuElement(Logger.class, "Severe level",
+            (ActionEvent e) -> logger.setLevel(Level.SEVERE));
+        application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
 
     /**

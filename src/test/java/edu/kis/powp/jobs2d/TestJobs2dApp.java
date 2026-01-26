@@ -69,140 +69,6 @@ public class TestJobs2dApp {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
     }
 
-
-    /**
-     * Setup driver manager, and set default VisitableJob2dDriver for application.
-     *
-     * @param application Application context.
-     */
-    private static void setupDrivers(Application application) {
-        VisitableJob2dDriver loggerDriver = new LoggerDriver(logger);
-        DriverFeature.addDriver("Logger driver", loggerDriver);
-
-        DrawPanelController drawerController = DrawerFeature.getDrawerController();
-        VisitableJob2dDriver basicLineDriver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        DriverFeature.addDriver("Basic line Simulator", basicLineDriver);
-
-        AnimatedDriverDecorator slowAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
-        slowAnimatedDriverDecorator.setSpeedSlow();
-        DriverFeature.addDriver("Animated Line - slow", slowAnimatedDriverDecorator);
-
-        AnimatedDriverDecorator mediumAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
-        mediumAnimatedDriverDecorator.setSpeedMedium();
-        DriverFeature.addDriver("Animated Line - medium speed", mediumAnimatedDriverDecorator);
-
-        AnimatedDriverDecorator fastAnimatedDriverDecorator = new AnimatedDriverDecorator(basicLineDriver);
-        fastAnimatedDriverDecorator.setSpeedFast();
-        DriverFeature.addDriver("Animated Line - fast", fastAnimatedDriverDecorator);
-
-        VisitableJob2dDriver specialLineDriver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
-        DriverFeature.addDriver("Special line Simulator", specialLineDriver);
-
-        VisitableJob2dDriver basicLineWithLoggerDriver = new DriverComposite(Arrays.asList(basicLineDriver, loggerDriver));
-        DriverFeature.addDriver("Logger + Basic line", basicLineWithLoggerDriver);
-
-        VisitableJob2dDriver specialLineWithLoggerDriver = new DriverComposite(Arrays.asList(specialLineDriver, loggerDriver));
-        DriverFeature.addDriver("Logger + Special line", specialLineWithLoggerDriver);
-
-        RecordingDriverDecorator recordingDriver = new RecordingDriverDecorator(basicLineDriver);
-        SelectLoadRecordedCommandOptionListener selectLoadRecordedCommandOptionListener = new SelectLoadRecordedCommandOptionListener(recordingDriver);
-        application.addTest("Stop recording & Load recorded command", selectLoadRecordedCommandOptionListener);
-        DriverFeature.addDriver("Recording Driver", recordingDriver);
-
-        // Add monitored versions of drivers
-        UsageTrackingDriverDecorator monitoredBasicLine = new UsageTrackingDriverDecorator(basicLineDriver, "Basic line [monitored]");
-        MonitoringFeature.registerMonitoredDriver("Basic line [monitored]", monitoredBasicLine);
-        DriverFeature.addDriver("Basic line [monitored]", monitoredBasicLine);
-
-        UsageTrackingDriverDecorator monitoredSpecialLine = new UsageTrackingDriverDecorator(specialLineDriver, "Special line [monitored]");
-        MonitoringFeature.registerMonitoredDriver("Special line [monitored]", monitoredSpecialLine);
-        DriverFeature.addDriver("Special line [monitored]", monitoredSpecialLine);
-
-        // Set default driver
-        DriverFeature.getDriverManager().setCurrentDriver(basicLineDriver);
-        VisitableJob2dDriver rotatedDriver = DriverFeatureFactory.createRotateDriver(basicLineDriver, 45);
-        DriverFeature.addDriver("Basic Line + Rotate 45", rotatedDriver);
-
-        VisitableJob2dDriver scaledDriver = DriverFeatureFactory.createScaleDriver(basicLineDriver, 2.0);
-        DriverFeature.addDriver("Basic Line + Scale 2x", scaledDriver);
-
-        VisitableJob2dDriver flippedDriver = DriverFeatureFactory.createFlipDriver(basicLineDriver, true, false);
-        DriverFeature.addDriver("Basic Line + Flip Horizontal", flippedDriver);
-
-        DriverFeature.updateDriverInfo();
-    }
-
-    private static void setupWindows(Application application) {
-
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
-        SelectImportCommandOptionListener importListener = new SelectImportCommandOptionListener(
-                CommandsFeature.getDriverCommandManager(),
-                new JsonCommandImportParser()
-        );
-        commandManager.setImportActionListener(importListener);
-        application.addWindowComponent("Command Manager", commandManager);
-
-        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
-                commandManager);
-        CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
-
-        CommandPreviewWindow commandPreviewWindow = new CommandPreviewWindow();
-        commandManager.setPreviewWindow(commandPreviewWindow);
-        application.addWindowComponent("Command Preview", commandPreviewWindow);
-        CommandPreviewWindowObserver previewObserver = new CommandPreviewWindowObserver(
-                commandPreviewWindow,
-                CommandsFeature.getDriverCommandManager()
-        );
-        CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(previewObserver);
-    }
-
-    /**
-     * Setup canvas options.
-     *
-     * @param application Application context.
-     */
-    private static void setupCanvases(Application application) {
-        CanvasFeature.addCanvas("None", null);
-        CanvasFeature.addCanvas(CanvasFactory.createA4());
-        CanvasFeature.addCanvas(CanvasFactory.createA3());
-        CanvasFeature.addCanvas(CanvasFactory.createB4());
-        CanvasFeature.addCanvas(CanvasFactory.createCircle(200));
-    }
-
-    /**
-     * Setup view options (zoom, pan, reset).
-     *
-     * @param application Application context.
-     */
-    private static void setupView(Application application) {
-        SelectZoomInOptionListener zoomInListener = new SelectZoomInOptionListener();
-        SelectZoomOutOptionListener zoomOutListener = new SelectZoomOutOptionListener();
-        SelectResetViewOptionListener resetViewListener = new SelectResetViewOptionListener();
-
-        application.addComponentMenuElement(ViewFeature.class, "Zoom in", zoomInListener);
-        application.addComponentMenuElement(ViewFeature.class, "Zoom out", zoomOutListener);
-        application.addComponentMenuElement(ViewFeature.class, "Reset", resetViewListener);
-    }
-
-    /**
-     * Setup menu for adjusting logging settings.
-     *
-     * @param application Application context.
-     */
-    private static void setupLogger(Application application) {
-
-        application.addComponentMenu(Logger.class, "Logger", 0);
-        application.addComponentMenuElement(Logger.class, "Clear log",
-                (ActionEvent e) -> application.flushLoggerOutput());
-        application.addComponentMenuElement(Logger.class, "Fine level", (ActionEvent e) -> logger.setLevel(Level.FINE));
-        application.addComponentMenuElement(Logger.class, "Info level", (ActionEvent e) -> logger.setLevel(Level.INFO));
-        application.addComponentMenuElement(Logger.class, "Warning level",
-                (ActionEvent e) -> logger.setLevel(Level.WARNING));
-        application.addComponentMenuElement(Logger.class, "Severe level",
-                (ActionEvent e) -> logger.setLevel(Level.SEVERE));
-        application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
-    }
-
     /**
      * Launch the application.
      */
@@ -210,21 +76,21 @@ public class TestJobs2dApp {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Application app = new Application("Jobs 2D");
+
+                // Setup application features
                 ViewFeature.setupViewPlugin(app);
                 DrawerFeature.setupDrawerPlugin(app);
                 CanvasFeature.setupCanvasPlugin(app);
                 CommandsFeature.setupCommandManager();
                 CommandsFeature.setupCommandsMenu(app);
-
-                DriverFeature.setupDriverPlugin(app);
-                setupDrivers(app);
+                CommandsFeature.setupWindows(app);
+                MonitoringFeature.setupLoggerMenu(app);
                 MonitoringFeature.setupMonitoringPlugin(app, logger);
-                setupCanvases(app);
-                setupView(app);
+                DriverFeature.setupDriverPlugin(app, logger);
+
+                // Setup tests
                 setupPresetTests(app);
                 setupCommandTests(app);
-                setupLogger(app);
-                setupWindows(app);
 
                 app.setVisibility(true);
             }
