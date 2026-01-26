@@ -167,7 +167,6 @@ public class TestJobs2dApp {
 
     /**
      * Setup view options (zoom, pan, reset).
-     *
      * @param application Application context.
      */
     private static void setupView(Application application) {
