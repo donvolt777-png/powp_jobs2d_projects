@@ -1,5 +1,9 @@
 package edu.kis.powp.jobs2d;
 
+import edu.kis.powp.jobs2d.drivers.maintenance.DeviceMaintenancePanel;
+import edu.kis.powp.jobs2d.drivers.maintenance.DeviceUsageMonitor;
+import edu.kis.powp.jobs2d.drivers.maintenance.UsageTrackingDriverDecorator;
+import edu.kis.powp.jobs2d.features.MonitoringDriverConfigurationStrategy;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
@@ -15,12 +19,14 @@ import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindowObserver;
 import edu.kis.powp.jobs2d.command.gui.SelectImportCommandOptionListener;
 import edu.kis.powp.jobs2d.command.importer.JsonCommandImportParser;
+import edu.kis.powp.jobs2d.command.manager.CommandManager;
+import edu.kis.powp.jobs2d.drivers.AnimatedDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.*;
 import edu.kis.powp.jobs2d.drivers.LoggerDriver;
+import edu.kis.powp.jobs2d.drivers.RecordingDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.DriverComposite;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.drivers.maintenance.DeviceMaintenancePanel;
-import edu.kis.powp.jobs2d.drivers.maintenance.DeviceUsageMonitor;
-import edu.kis.powp.jobs2d.drivers.maintenance.UsageTrackingDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.transformation.*;
 import edu.kis.powp.jobs2d.visitor.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.CanvasFeature;
@@ -31,7 +37,6 @@ import edu.kis.powp.jobs2d.features.MonitoringFeature;
 import edu.kis.powp.jobs2d.features.FeatureManager;
 import edu.kis.powp.jobs2d.features.ViewFeature;
 
-import edu.kis.powp.jobs2d.drivers.transformation.DriverFeatureFactory;
 import edu.kis.powp.jobs2d.canvas.CanvasFactory;
 
 
@@ -76,6 +81,22 @@ public class TestJobs2dApp {
         application.addTest("Scale 2.0 command", new SelectRunCurrentScaledUpCommandOptionListener());
         application.addTest("Scale 0.5 command", new SelectRunCurrentScaledDownCommandOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
+
+        CommandManager manager = CommandsFeature.getDriverCommandManager();
+        application.addTest("Scale x2",
+                new SelectCommandTransformationOptionListener(manager, new ScaleStrategy(2)));
+        application.addTest("Rotate 90 degrees",
+                new SelectCommandTransformationOptionListener(manager, new RotateStrategy(90)));
+        application.addTest("Flip",
+                new SelectCommandTransformationOptionListener(manager, new FlipStrategy(true, false)));
+        application.addTest("Shift (right: 15)",
+                new SelectCommandTransformationOptionListener(manager, new ShiftStrategy(15, 0)));
+        application.addTest("Shift (down: 15)",
+                new SelectCommandTransformationOptionListener(manager, new ShiftStrategy(0, 15)));
+        application.addTest("Shear (X: 0.5)",
+                new SelectCommandTransformationOptionListener(manager, new ShearStrategy(0.5, 0)));
+        application.addTest("Shear (Y: 0.5)",
+                new SelectCommandTransformationOptionListener(manager, new ShearStrategy(0, 0.5)));
     }
 
     /**
@@ -84,6 +105,8 @@ public class TestJobs2dApp {
      * @param application Application context.
      */
     private static void setupDrivers(Application application) {
+        DriverFeature.setConfigurationStrategy(new MonitoringDriverConfigurationStrategy());
+
         VisitableJob2dDriver loggerDriver = new LoggerDriver(logger);
         DriverFeature.addDriver("Logger driver", loggerDriver);
 
@@ -117,16 +140,7 @@ public class TestJobs2dApp {
         application.addTest("Stop recording & Load recorded command", selectLoadRecordedCommandOptionListener);
         DriverFeature.addDriver("Recording Driver", recordingDriver);
 
-        // Add monitored versions of drivers
-        UsageTrackingDriverDecorator monitoredBasicLine = new UsageTrackingDriverDecorator(basicLineDriver, "Basic line [monitored]");
-        MonitoringFeature.registerMonitoredDriver("Basic line [monitored]", monitoredBasicLine);
-        DriverFeature.addDriver("Basic line [monitored]", monitoredBasicLine);
-
-        UsageTrackingDriverDecorator monitoredSpecialLine = new UsageTrackingDriverDecorator(specialLineDriver, "Special line [monitored]");
-        MonitoringFeature.registerMonitoredDriver("Special line [monitored]", monitoredSpecialLine);
-        DriverFeature.addDriver("Special line [monitored]", monitoredSpecialLine);
-
-        // Add Device Maintenance Panel
+        // Device maintenance panel
         VisitableJob2dDriver coreDriver = new LineDriverAdapter(DrawerFeature.getDrawerController(), LineFactory.getBasicLine(), "basic");
         UsageTrackingDriverDecorator maintenanceDriver = new UsageTrackingDriverDecorator(coreDriver, "Device Simulator", 500, 40);
         DeviceMaintenancePanel devicePanel = new DeviceMaintenancePanel(
@@ -190,7 +204,7 @@ public class TestJobs2dApp {
 
     /**
      * Setup view options (zoom, pan, reset).
-     * 
+     *
      * @param application Application context.
      */
     private static void setupView(Application application) {

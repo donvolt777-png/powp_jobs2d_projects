@@ -1,12 +1,13 @@
 package edu.kis.powp.jobs2d.features;
 
+import edu.kis.powp.jobs2d.visitor.VisitableJob2dDriver;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.drivers.UsageTrackingDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.maintenance.UsageTrackingDriverDecorator;
 
 /**
  * Provides monitoring capabilities for tracked drivers. Users can select drivers
@@ -21,6 +22,8 @@ public class MonitoringFeature implements IFeature {
     /** Target logger where summaries are printed. */
     private static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
+    private static boolean monitoringEnabled = true;
+
     public MonitoringFeature() {
     }
 
@@ -32,7 +35,10 @@ public class MonitoringFeature implements IFeature {
 
     @Override
     public void setup(Application app) {
+
         app.addComponentMenu(MonitoringFeature.class, "Monitoring", 0);
+        app.addComponentMenuElementWithCheckBox(MonitoringFeature.class, "Toggle Monitoring",
+            (ActionEvent e) -> monitoringEnabled = !monitoringEnabled, true);
         app.addComponentMenuElement(MonitoringFeature.class, "Report usage summary", MonitoringFeature::logUsage);
         app.addComponentMenuElement(MonitoringFeature.class, "Reset counters", MonitoringFeature::resetCounters);
     }
@@ -82,6 +88,10 @@ public class MonitoringFeature implements IFeature {
             driver.reset();
         }
         logger.info("Monitoring: all counters reset");
+    }
+
+    public static boolean isMonitoringEnabled() {
+        return monitoringEnabled;
     }
 
     @Override

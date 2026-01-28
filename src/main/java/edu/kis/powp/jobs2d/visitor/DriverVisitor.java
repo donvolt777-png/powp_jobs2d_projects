@@ -7,7 +7,7 @@ import edu.kis.powp.jobs2d.drivers.AnimatedDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.transformation.TransformerDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.RecordingDriverDecorator;
-import edu.kis.powp.jobs2d.drivers.UsageTrackingDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.maintenance.UsageTrackingDriverDecorator;
 
 /**
  * Interface for the Visitor pattern to traverse and process drivers.

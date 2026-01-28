@@ -7,7 +7,7 @@ import edu.kis.powp.jobs2d.drivers.DriverComposite;
 import java.util.Iterator;
 
 import edu.kis.powp.jobs2d.drivers.AnimatedDriverDecorator;
-import edu.kis.powp.jobs2d.drivers.UsageTrackingDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.maintenance.UsageTrackingDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.transformation.TransformerDriverDecorator;
 
