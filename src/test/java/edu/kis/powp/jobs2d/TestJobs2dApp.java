@@ -17,10 +17,8 @@ import edu.kis.powp.jobs2d.command.gui.SelectImportCommandOptionListener;
 import edu.kis.powp.jobs2d.command.importer.JsonCommandImportParser;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
 import edu.kis.powp.jobs2d.drivers.AnimatedDriverDecorator;
+import edu.kis.powp.jobs2d.drivers.*;
 import edu.kis.powp.jobs2d.drivers.LoggerDriver;
-import edu.kis.powp.jobs2d.drivers.RecordingDriverDecorator;
-import edu.kis.powp.jobs2d.drivers.DriverComposite;
-import edu.kis.powp.jobs2d.drivers.UsageTrackingDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.transformation.*;
 import edu.kis.powp.jobs2d.visitor.VisitableJob2dDriver;
@@ -30,6 +28,7 @@ import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
 import edu.kis.powp.jobs2d.features.DriverFeature;
 import edu.kis.powp.jobs2d.features.MonitoringFeature;
+import edu.kis.powp.jobs2d.features.FeatureManager;
 import edu.kis.powp.jobs2d.features.ViewFeature;
 
 import edu.kis.powp.jobs2d.canvas.CanvasFactory;
@@ -52,12 +51,15 @@ public class TestJobs2dApp {
                 DriverFeature.getDriverManager());
         SelectCountCommandOptionListener selectCountCommandOptionListener = new SelectCountCommandOptionListener(CommandsFeature.getDriverCommandManager());
         SelectCountDriverOptionListener selectCountDriverOptionListener = new SelectCountDriverOptionListener();
+        SelectValidateCanvasBoundsOptionListener selectValidateCanvasBoundsOptionListener = new SelectValidateCanvasBoundsOptionListener(
+                CommandsFeature.getDriverCommandManager(), logger);
 
         application.addTest("Figure Joe 1", selectTestFigureOptionListener);
         application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
         application.addTest("Figure House - CompoundCommand", selectTestCompoundCommandOptionListener);
         application.addTest("Count commands - Visitor", selectCountCommandOptionListener);
         application.addTest("Count drivers - Visitor", selectCountDriverOptionListener);
+        application.addTest("Validate Canvas Bounds", selectValidateCanvasBoundsOptionListener);
     }
 
     /**
@@ -68,6 +70,10 @@ public class TestJobs2dApp {
     private static void setupCommandTests(Application application) {
         ViewFeature.addMouseListenerToControlPanel(new CanvasMouseListener());
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
+        application.addTest("Flip command", new SelectRunCurrentFlippedCommandOptionListener());
+        application.addTest("Rotate 90 command", new SelectRunCurrentRotatedCommandOptionListener());
+        application.addTest("Scale 2.0 command", new SelectRunCurrentScaledUpCommandOptionListener());
+        application.addTest("Scale 0.5 command", new SelectRunCurrentScaledDownCommandOptionListener());
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
 
         CommandManager manager = CommandsFeature.getDriverCommandManager();
@@ -125,7 +131,7 @@ public class TestJobs2dApp {
         SelectLoadRecordedCommandOptionListener selectLoadRecordedCommandOptionListener = new SelectLoadRecordedCommandOptionListener(recordingDriver);
         application.addTest("Stop recording & Load recorded command", selectLoadRecordedCommandOptionListener);
         DriverFeature.addDriver("Recording Driver", recordingDriver);
-        
+
         // Add monitored versions of drivers
         UsageTrackingDriverDecorator monitoredBasicLine = new UsageTrackingDriverDecorator(basicLineDriver, "Basic line [monitored]");
         MonitoringFeature.registerMonitoredDriver("Basic line [monitored]", monitoredBasicLine);
@@ -146,7 +152,6 @@ public class TestJobs2dApp {
         VisitableJob2dDriver flippedDriver = DriverFeatureFactory.createFlipDriver(basicLineDriver, true, false);
         DriverFeature.addDriver("Basic Line + Flip Horizontal", flippedDriver);
 
-        DriverFeature.updateDriverInfo();
     }
 
     private static void setupWindows(Application application) {
@@ -164,6 +169,7 @@ public class TestJobs2dApp {
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
 
         CommandPreviewWindow commandPreviewWindow = new CommandPreviewWindow();
+        commandManager.setPreviewWindow(commandPreviewWindow);
         application.addWindowComponent("Command Preview", commandPreviewWindow);
         CommandPreviewWindowObserver previewObserver = new CommandPreviewWindowObserver(
                 commandPreviewWindow, 
@@ -226,14 +232,17 @@ public class TestJobs2dApp {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Application app = new Application("Jobs 2D");
-                ViewFeature.setupViewPlugin(app);
-                DrawerFeature.setupDrawerPlugin(app);
-                CanvasFeature.setupCanvasPlugin(app);
-                CommandsFeature.setupCommandManager();
 
-                DriverFeature.setupDriverPlugin(app);
+                FeatureManager featureManager = new FeatureManager();
+                featureManager.setApplication(app);
+                featureManager.registerFeature(new DrawerFeature());
+                featureManager.registerFeature(new CanvasFeature());
+                featureManager.registerFeature(new CommandsFeature());
+                featureManager.registerFeature(new DriverFeature());
+                featureManager.registerFeature(new MonitoringFeature(logger));
+                featureManager.setupAll();
+
                 setupDrivers(app);
-                MonitoringFeature.setupMonitoringPlugin(app, logger);
                 setupCanvases(app);
                 setupView(app);
                 setupPresetTests(app);
