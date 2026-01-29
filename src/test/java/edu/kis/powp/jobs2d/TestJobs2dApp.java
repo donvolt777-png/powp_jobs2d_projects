@@ -14,6 +14,7 @@ import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandPreviewWindowObserver;
+import edu.kis.powp.jobs2d.command.gui.CommandHistoryWindow;
 import edu.kis.powp.jobs2d.command.gui.SelectImportCommandOptionListener;
 import edu.kis.powp.jobs2d.command.importer.JsonCommandImportParser;
 import edu.kis.powp.jobs2d.command.manager.CommandManager;
@@ -56,7 +57,7 @@ public class TestJobs2dApp {
         SelectCountDriverOptionListener selectCountDriverOptionListener = new SelectCountDriverOptionListener();
         SelectValidateCanvasBoundsOptionListener selectValidateCanvasBoundsOptionListener = new SelectValidateCanvasBoundsOptionListener(
                 CommandsFeature.getDriverCommandManager(), logger);
-
+        
         application.addTest("Figure Joe 1", selectTestFigureOptionListener);
         application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
         application.addTest("Figure House - CompoundCommand", selectTestCompoundCommandOptionListener);
@@ -172,6 +173,12 @@ public class TestJobs2dApp {
                 CommandsFeature.getDriverCommandManager()
         );
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(previewObserver);
+        
+        CommandHistoryWindow historyWindow = new CommandHistoryWindow(
+                CommandsFeature.getCommandHistory(),
+                CommandsFeature.getDriverCommandManager()
+        );
+        application.addWindowComponent("Command History", historyWindow);
     }
 
     /**
