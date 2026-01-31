@@ -9,12 +9,16 @@ import edu.kis.powp.jobs2d.events.SelectTestCompoundCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
 import edu.kis.powp.jobs2d.events.SelectValidateCanvasBoundsOptionListener;
+import edu.kis.powp.jobs2d.features.CanvasFeature;
+import edu.kis.powp.jobs2d.features.CommandsFeature;
+import edu.kis.powp.jobs2d.features.DrawerFeature;
+import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.FeatureManager;
+import edu.kis.powp.jobs2d.features.MonitoringFeature;
+import edu.kis.powp.jobs2d.features.ViewFeature;
 import java.awt.EventQueue;
 import java.util.logging.Logger;
-import edu.kis.powp.jobs2d.events.SelectZoomInOptionListener;
-import edu.kis.powp.jobs2d.events.SelectZoomOutOptionListener;
-import edu.kis.powp.jobs2d.visitor.VisitableJob2dDriver;
-import edu.kis.powp.jobs2d.features.*;
+
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -29,8 +33,7 @@ public class TestJobs2dApp {
                 DriverFeature.getDriverManager());
         SelectTestFigure2OptionListener selectTestFigure2OptionListener = new SelectTestFigure2OptionListener(
                 DriverFeature.getDriverManager());
-        SelectTestCompoundCommandOptionListener selectTestCompoundCommandOptionListener = new SelectTestCompoundCommandOptionListener(
-                DriverFeature.getDriverManager());
+        SelectTestCompoundCommandOptionListener selectTestCompoundCommandOptionListener = new SelectTestCompoundCommandOptionListener();
         SelectCountCommandOptionListener selectCountCommandOptionListener = new SelectCountCommandOptionListener(
                 CommandsFeature.getDriverCommandManager());
         SelectCountDriverOptionListener selectCountDriverOptionListener = new SelectCountDriverOptionListener();
