@@ -67,24 +67,24 @@ public class TestJobs2dApp {
      */
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                        Application app = new Application("Jobs 2D");
+            public void run() {
+                Application app = new Application("Jobs 2D");
 
-                        FeatureManager featureManager = new FeatureManager();
-                        featureManager.setApplication(app);
-                        featureManager.registerFeature(new ViewFeature());
-                        featureManager.registerFeature(new DrawerFeature());
-                        featureManager.registerFeature(new CanvasFeature());
-                        featureManager.registerFeature(new CommandsFeature());
-                        featureManager.registerFeature(new DriverFeature(logger));
-                        featureManager.registerFeature(new MonitoringFeature(logger));
-                        featureManager.setupAll();
+                FeatureManager featureManager = new FeatureManager();
+                featureManager.setApplication(app);
+                featureManager.registerFeature(new ViewFeature());
+                featureManager.registerFeature(new DrawerFeature());
+                featureManager.registerFeature(new CanvasFeature());
+                featureManager.registerFeature(new CommandsFeature());
+                featureManager.registerFeature(new DriverFeature(logger));
+                featureManager.registerFeature(new MonitoringFeature(logger));
+                featureManager.setupAll();
 
-                        setupPresetTests(app);
-                        setupCommandTests(app);
+                setupPresetTests(app);
+                setupCommandTests(app);
 
-                        app.setVisibility(true);
-                }
+                app.setVisibility(true);
+            }
         });
     }
 
